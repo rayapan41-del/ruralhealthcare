@@ -1,0 +1,1628 @@
+RURAL HEALTHCARE PROTOTYPE CODE FOR REFERENCE
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RuralCare - Telemedicine for Everyone</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body { font-family: 'Inter', sans-serif; }
+        
+        .offline-indicator {
+            background: linear-gradient(45deg, #ef4444, #dc2626);
+            animation: pulse 2s infinite;
+        }
+        
+        .online-indicator {
+            background: linear-gradient(45deg, #10b981, #059669);
+        }
+        
+        .low-bandwidth {
+            filter: blur(0.5px);
+            transition: filter 0.3s ease;
+        }
+        
+        .consultation-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        
+        .health-record-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        
+        .pharmacy-card {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        
+        .symptom-card {
+            background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .loading-spinner {
+            border: 3px solid #f3f4f6;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center py-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-lg">RC</span>
+                    </div>
+                    <div>
+                        <h1 class="text-xl font-bold text-gray-900">RuralCare</h1>
+                        <p class="text-xs text-gray-500">Healthcare for Everyone</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-center space-x-4">
+                    <!-- User Profile or Login -->
+                    <div id="userSection" class="flex items-center space-x-3">
+                        <button onclick="showLogin('patient')" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                            Patient Login
+                        </button>
+                        <button onclick="showLogin('doctor')" class="text-sm bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                            Doctor Login
+                        </button>
+                    </div>
+                    
+                    <!-- Language Selector -->
+                    <select id="languageSelect" class="text-sm border border-gray-300 rounded-lg px-3 py-1 focus:ring-2 focus:ring-blue-500">
+                        <option value="en">English</option>
+                        <option value="hi">हिंदी</option>
+                        <option value="bn">বাংলা</option>
+                        <option value="te">తెలుగు</option>
+                        <option value="ta">தமிழ்</option>
+                    </select>
+                    
+                    <!-- Connection Status -->
+                    <div id="connectionStatus" class="flex items-center space-x-2 px-3 py-1 rounded-full text-white text-xs online-indicator">
+                        <div class="w-2 h-2 bg-white rounded-full"></div>
+                        <span>Online</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <!-- Welcome Section -->
+        <div class="text-center mb-12">
+            <h2 class="text-3xl font-bold text-gray-900 mb-4">Welcome to RuralCare</h2>
+            <p class="text-lg text-gray-600 max-w-2xl mx-auto">
+                Complete healthcare solution designed for rural communities with offline support and low-bandwidth optimization
+            </p>
+        </div>
+
+        <!-- Main Features Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+            <!-- Video Consultation -->
+            <div class="consultation-card rounded-2xl p-6 text-white cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="openConsultation()">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM5 8a1 1 0 011-1h1a1 1 0 010 2H6a1 1 0 01-1-1zm6 1a1 1 0 100 2h3a1 1 0 100-2H11z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">Available</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Video Consultation</h3>
+                <p class="text-sm opacity-90">Connect with certified doctors via low-bandwidth video calls</p>
+            </div>
+
+            <!-- Health Records -->
+            <div class="health-record-card rounded-2xl p-6 text-white cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="openHealthRecords()">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                            <path fill-rule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h4a2 2 0 002-2V3a2 2 0 012 2v6a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">Offline Ready</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Health Records</h3>
+                <p class="text-sm opacity-90">Access your medical history even without internet connection</p>
+            </div>
+
+            <!-- Pharmacy Locator -->
+            <div class="pharmacy-card rounded-2xl p-6 text-white cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="openPharmacy()">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">Live Updates</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Medicine Finder</h3>
+                <p class="text-sm opacity-90">Real-time medicine availability at nearby pharmacies</p>
+            </div>
+
+            <!-- AI Symptom Checker -->
+            <div class="symptom-card rounded-2xl p-6 text-white cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="openSymptomChecker()">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-3a1 1 0 00-.867.5 1 1 0 11-1.731-1A3 3 0 0113 8a3.001 3.001 0 01-2 2.83V11a1 1 0 11-2 0v-1a1 1 0 011-1 1 1 0 100-2zm0 8a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">AI Powered</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Symptom Checker</h3>
+                <p class="text-sm opacity-90">AI-powered health assessment optimized for rural areas</p>
+            </div>
+        </div>
+
+        <!-- Government Schemes Section -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+            <!-- Government Health Schemes -->
+            <div class="bg-gradient-to-r from-orange-500 to-red-500 rounded-2xl p-6 text-white cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="openGovernmentSchemes()">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">Free Access</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Government Schemes</h3>
+                <p class="text-sm opacity-90">Ayushman Bharat, PMJAY and other health benefits</p>
+            </div>
+
+            <!-- Voice Assistant -->
+            <div class="bg-gradient-to-r from-purple-500 to-pink-500 rounded-2xl p-6 text-white cursor-pointer transform hover:scale-105 transition-all duration-300" onclick="openVoiceAssistant()">
+                <div class="flex items-center justify-between mb-4">
+                    <div class="w-12 h-12 bg-white bg-opacity-20 rounded-lg flex items-center justify-center">
+                        <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <span class="text-xs bg-white bg-opacity-20 px-2 py-1 rounded-full">Voice Enabled</span>
+                </div>
+                <h3 class="text-lg font-semibold mb-2">Voice Assistant</h3>
+                <p class="text-sm opacity-90">Speak your symptoms and get instant help</p>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-2xl shadow-lg p-8 mb-8">
+            <h3 class="text-xl font-semibold text-gray-900 mb-6">Your Health Dashboard</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-blue-600 mb-2">24/7</div>
+                    <p class="text-gray-600">Doctor Availability</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-green-600 mb-2">500+</div>
+                    <p class="text-gray-600">Partner Pharmacies</p>
+                </div>
+                <div class="text-center">
+                    <div class="text-3xl font-bold text-purple-600 mb-2">95%</div>
+                    <p class="text-gray-600">Offline Functionality</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal Container -->
+    <div id="modalContainer" class="fixed inset-0 bg-black bg-opacity-50 hidden z-50 flex items-center justify-center p-4">
+        <div id="modalContent" class="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <!-- Modal content will be inserted here -->
+        </div>
+    </div>
+
+    <script>
+        // User state management
+        let currentUser = null;
+        let userType = null; // 'patient' or 'doctor'
+        let callFeedback = [];
+        let aiLearningData = [];
+        
+        // Voice recognition setup
+        let recognition = null;
+        let isListening = false;
+        let voiceTranscript = '';
+        
+        // Initialize speech recognition
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'hi-IN'; // Default to Hindi, can be changed
+        }
+
+        // Language translations
+        const translations = {
+            en: {
+                title: "RuralCare - Telemedicine for Everyone",
+                welcome: "Welcome to RuralCare",
+                subtitle: "Complete healthcare solution designed for rural communities with offline support and low-bandwidth optimization",
+                videoConsultation: "Video Consultation",
+                healthRecords: "Health Records",
+                medicineFinder: "Medicine Finder",
+                symptomChecker: "Symptom Checker"
+            },
+            hi: {
+                title: "रूरलकेयर - सभी के लिए टेलीमेडिसिन",
+                welcome: "रूरलकेयर में आपका स्वागत है",
+                subtitle: "ऑफलाइन सपोर्ट और कम बैंडविड्थ के साथ ग्रामीण समुदायों के लिए संपूर्ण स्वास्थ्य समाधान",
+                videoConsultation: "वीडियो परामर्श",
+                healthRecords: "स्वास्थ्य रिकॉर्ड",
+                medicineFinder: "दवा खोजक",
+                symptomChecker: "लक्षण जांचकर्ता"
+            }
+        };
+
+        // Connection status simulation
+        let isOnline = navigator.onLine;
+        
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connectionStatus');
+            if (isOnline) {
+                statusElement.className = 'flex items-center space-x-2 px-3 py-1 rounded-full text-white text-xs online-indicator';
+                statusElement.innerHTML = '<div class="w-2 h-2 bg-white rounded-full"></div><span>Online</span>';
+            } else {
+                statusElement.className = 'flex items-center space-x-2 px-3 py-1 rounded-full text-white text-xs offline-indicator';
+                statusElement.innerHTML = '<div class="w-2 h-2 bg-white rounded-full"></div><span>Offline</span>';
+            }
+        }
+
+        // Language switching
+        document.getElementById('languageSelect').addEventListener('change', function(e) {
+            const lang = e.target.value;
+            // In a real app, this would update all text elements
+            console.log('Language changed to:', lang);
+        });
+
+        // Modal functions
+        function showModal(content) {
+            document.getElementById('modalContent').innerHTML = content;
+            document.getElementById('modalContainer').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('modalContainer').classList.add('hidden');
+        }
+
+        // Login and Authentication
+        function showLogin(type) {
+            const isDoctor = type === 'doctor';
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">${isDoctor ? 'Doctor' : 'Patient'} Login</h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <form onsubmit="handleLogin(event, '${type}')" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">
+                                    ${isDoctor ? 'Medical License ID' : 'Phone Number / Aadhaar'}
+                                </label>
+                                <input type="text" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="${isDoctor ? 'Enter your medical license number' : 'Enter phone or Aadhaar number'}">
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Password</label>
+                                <input type="password" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="Enter your password">
+                            </div>
+                            
+                            ${isDoctor ? `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Hospital/Clinic</label>
+                                <input type="text" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500" 
+                                       placeholder="Enter your hospital/clinic name">
+                            </div>
+                            ` : ''}
+                            
+                            <button type="submit" class="w-full bg-${isDoctor ? 'green' : 'blue'}-600 hover:bg-${isDoctor ? 'green' : 'blue'}-700 text-white py-3 rounded-lg font-medium">
+                                Login as ${isDoctor ? 'Doctor' : 'Patient'}
+                            </button>
+                        </form>
+                        
+                        <div class="mt-6 text-center">
+                            <p class="text-sm text-gray-600">Don't have an account?</p>
+                            <button onclick="showRegistration('${type}')" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Register as ${isDoctor ? 'Doctor' : 'Patient'}
+                            </button>
+                        </div>
+                        
+                        ${!isDoctor ? `
+                        <div class="mt-4 p-4 bg-blue-50 rounded-lg">
+                            <p class="text-sm text-blue-800">
+                                <strong>Demo Login:</strong> Use phone "9876543210" and password "demo123" to try the app
+                            </p>
+                        </div>
+                        ` : `
+                        <div class="mt-4 p-4 bg-green-50 rounded-lg">
+                            <p class="text-sm text-green-800">
+                                <strong>Demo Login:</strong> Use license "DOC12345" and password "doctor123" to try the app
+                            </p>
+                        </div>
+                        `}
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function showRegistration(type) {
+            const isDoctor = type === 'doctor';
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Register as ${isDoctor ? 'Doctor' : 'Patient'}</h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <form onsubmit="handleRegistration(event, '${type}')" class="space-y-4">
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+                                    <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+                                    <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
+                                <input type="tel" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            
+                            ${isDoctor ? `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Medical License Number</label>
+                                <input type="text" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Specialization</label>
+                                <select required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Specialization</option>
+                                    <option value="general">General Physician</option>
+                                    <option value="pediatrics">Pediatrics</option>
+                                    <option value="cardiology">Cardiology</option>
+                                    <option value="dermatology">Dermatology</option>
+                                    <option value="orthopedics">Orthopedics</option>
+                                </select>
+                            </div>
+                            ` : `
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                                <input type="date" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                <select required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                                    <option value="">Select Gender</option>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                    <option value="other">Other</option>
+                                </select>
+                            </div>
+                            `}
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+                                <input type="password" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            </div>
+                            
+                            <button type="submit" class="w-full bg-${isDoctor ? 'green' : 'blue'}-600 hover:bg-${isDoctor ? 'green' : 'blue'}-700 text-white py-3 rounded-lg font-medium">
+                                Create Account
+                            </button>
+                        </form>
+                        
+                        <div class="mt-4 text-center">
+                            <button onclick="showLogin('${type}')" class="text-blue-600 hover:text-blue-800 text-sm">
+                                Already have an account? Login
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function handleLogin(event, type) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            
+            // Demo login logic
+            const identifier = event.target.querySelector('input[type="text"]').value;
+            const password = event.target.querySelector('input[type="password"]').value;
+            
+            let loginSuccess = false;
+            
+            if (type === 'patient' && identifier === '9876543210' && password === 'demo123') {
+                currentUser = { name: 'Rajesh Kumar', phone: '9876543210', type: 'patient' };
+                loginSuccess = true;
+            } else if (type === 'doctor' && identifier === 'DOC12345' && password === 'doctor123') {
+                currentUser = { name: 'Dr. Priya Sharma', license: 'DOC12345', type: 'doctor', specialization: 'General Physician' };
+                loginSuccess = true;
+            }
+            
+            if (loginSuccess) {
+                userType = type;
+                updateUserInterface();
+                closeModal();
+                showWelcomeMessage();
+            } else {
+                alert('Invalid credentials. Please use the demo login details provided.');
+            }
+        }
+
+        function handleRegistration(event, type) {
+            event.preventDefault();
+            alert('Registration successful! Please use the demo login credentials to continue.');
+            showLogin(type);
+        }
+
+        function updateUserInterface() {
+            const userSection = document.getElementById('userSection');
+            if (currentUser) {
+                userSection.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <div class="flex items-center space-x-2">
+                            <div class="w-8 h-8 bg-${userType === 'doctor' ? 'green' : 'blue'}-600 rounded-full flex items-center justify-center">
+                                <span class="text-white text-xs">${currentUser.name.charAt(0)}</span>
+                            </div>
+                            <span class="text-sm font-medium text-gray-700">${currentUser.name}</span>
+                        </div>
+                        <button onclick="logout()" class="text-sm text-red-600 hover:text-red-800">Logout</button>
+                    </div>
+                `;
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            userType = null;
+            document.getElementById('userSection').innerHTML = `
+                <button onclick="showLogin('patient')" class="text-sm bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg">
+                    Patient Login
+                </button>
+                <button onclick="showLogin('doctor')" class="text-sm bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg">
+                    Doctor Login
+                </button>
+            `;
+        }
+
+        function showWelcomeMessage() {
+            const message = userType === 'doctor' 
+                ? `Welcome Dr. ${currentUser.name}! You can now manage consultations and view patient records.`
+                : `Welcome ${currentUser.name}! You can now book consultations and access your health records.`;
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-20 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Video Consultation
+        function openConsultation() {
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Video Consultation</h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <div class="bg-gray-900 rounded-lg aspect-video flex items-center justify-center mb-4">
+                                <div class="text-center text-white">
+                                    <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                                        <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                                        </svg>
+                                    </div>
+                                    <p class="text-sm">Dr. Priya Sharma</p>
+                                    <p class="text-xs text-gray-400">General Physician</p>
+                                </div>
+                            </div>
+                            
+                            <div class="flex justify-center space-x-4">
+                                <button class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <span>Unmute</span>
+                                </button>
+                                <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg flex items-center space-x-2">
+                                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z"/>
+                                    </svg>
+                                    <span>Camera On</span>
+                                </button>
+                                <button onclick="endCallWithFeedback()" class="bg-red-600 hover:bg-red-700 text-white px-6 py-2 rounded-lg">
+                                    End Call
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <h3 class="font-semibold text-gray-900 mb-2">Connection Quality</h3>
+                                <div class="flex items-center space-x-2">
+                                    <div class="flex space-x-1">
+                                        <div class="w-2 h-4 bg-green-500 rounded"></div>
+                                        <div class="w-2 h-4 bg-green-500 rounded"></div>
+                                        <div class="w-2 h-4 bg-yellow-500 rounded"></div>
+                                        <div class="w-2 h-4 bg-gray-300 rounded"></div>
+                                    </div>
+                                    <span class="text-sm text-gray-600">Good (Low Bandwidth Mode)</span>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h3 class="font-semibold text-gray-900 mb-2">Quick Notes</h3>
+                                <textarea class="w-full h-32 p-3 border border-gray-300 rounded-lg resize-none" placeholder="Doctor's notes will appear here..."></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        // Health Records
+        function openHealthRecords() {
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Digital Health Records</h2>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-green-600 flex items-center">
+                                <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div>
+                                Offline Available
+                            </span>
+                            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="lg:col-span-2">
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Recent Consultations</h3>
+                                <div class="space-y-4">
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Dr. Rajesh Kumar</p>
+                                            <p class="text-sm text-gray-600">General Physician • Dec 15, 2023</p>
+                                            <p class="text-sm text-blue-600">Fever, Headache</p>
+                                        </div>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm">View Details</button>
+                                    </div>
+                                    <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Dr. Priya Sharma</p>
+                                            <p class="text-sm text-gray-600">Cardiologist • Dec 10, 2023</p>
+                                            <p class="text-sm text-blue-600">Routine Checkup</p>
+                                        </div>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm">View Details</button>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Current Medications</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Paracetamol 500mg</p>
+                                            <p class="text-sm text-gray-600">Twice daily after meals</p>
+                                        </div>
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Active</span>
+                                    </div>
+                                    <div class="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
+                                        <div>
+                                            <p class="font-medium text-gray-900">Vitamin D3</p>
+                                            <p class="text-sm text-gray-600">Once daily</p>
+                                        </div>
+                                        <span class="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">Active</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Vital Signs</h3>
+                                <div class="space-y-4">
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-sm text-gray-600">Blood Pressure</span>
+                                            <span class="text-sm font-medium">120/80</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 75%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-sm text-gray-600">Heart Rate</span>
+                                            <span class="text-sm font-medium">72 bpm</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 80%"></div>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <div class="flex justify-between items-center mb-1">
+                                            <span class="text-sm text-gray-600">Temperature</span>
+                                            <span class="text-sm font-medium">98.6°F</span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-green-500 h-2 rounded-full" style="width: 85%"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white border border-gray-200 rounded-lg p-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Emergency Contacts</h3>
+                                <div class="space-y-3">
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center">
+                                            <span class="text-red-600 text-xs">🚨</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Emergency: 108</p>
+                                            <p class="text-xs text-gray-500">24/7 Ambulance</p>
+                                        </div>
+                                    </div>
+                                    <div class="flex items-center space-x-3">
+                                        <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                                            <span class="text-blue-600 text-xs">👨‍⚕️</span>
+                                        </div>
+                                        <div>
+                                            <p class="text-sm font-medium">Dr. Kumar: +91-9876543210</p>
+                                            <p class="text-xs text-gray-500">Primary Care</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        // Pharmacy Locator
+        function openPharmacy() {
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Medicine Finder</h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="mb-6">
+                        <div class="flex space-x-4">
+                            <input type="text" placeholder="Search for medicine..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500">
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg flex items-center space-x-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                                </svg>
+                                <span>Search</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Nearby Pharmacies</h3>
+                            <div class="space-y-4">
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">MedPlus Pharmacy</h4>
+                                            <p class="text-sm text-gray-600">Main Market, Village Center</p>
+                                            <p class="text-sm text-green-600">0.5 km away • Open now</p>
+                                        </div>
+                                        <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Available</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Paracetamol 500mg: ₹25</span>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm">Call Now</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Apollo Pharmacy</h4>
+                                            <p class="text-sm text-gray-600">Near Bus Stand</p>
+                                            <p class="text-sm text-green-600">1.2 km away • Open now</p>
+                                        </div>
+                                        <span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">Limited</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Paracetamol 500mg: ₹28</span>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm">Call Now</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="border border-gray-200 rounded-lg p-4">
+                                    <div class="flex justify-between items-start mb-2">
+                                        <div>
+                                            <h4 class="font-medium text-gray-900">Local Medical Store</h4>
+                                            <p class="text-sm text-gray-600">Gandhi Chowk</p>
+                                            <p class="text-sm text-red-600">2.1 km away • Closes at 8 PM</p>
+                                        </div>
+                                        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded-full">Out of Stock</span>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-500">Paracetamol 500mg: ₹22</span>
+                                        <button class="text-gray-400 text-sm cursor-not-allowed">Unavailable</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-4">Medicine Availability</h3>
+                            <div class="bg-gray-50 rounded-lg p-4 mb-4">
+                                <h4 class="font-medium text-gray-900 mb-3">Paracetamol 500mg</h4>
+                                <div class="space-y-2">
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">MedPlus</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium">₹25</span>
+                                            <div class="w-3 h-3 bg-green-500 rounded-full"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Apollo</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium">₹28</span>
+                                            <div class="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-between items-center">
+                                        <span class="text-sm text-gray-600">Local Store</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-sm font-medium">₹22</span>
+                                            <div class="w-3 h-3 bg-red-500 rounded-full"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 mb-2">💡 Smart Suggestions</h4>
+                                <ul class="text-sm text-gray-600 space-y-1">
+                                    <li>• Generic alternatives available at 40% lower cost</li>
+                                    <li>• Bulk purchase discount available at MedPlus</li>
+                                    <li>• Home delivery available for orders above ₹200</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        // AI Symptom Checker
+        function openSymptomChecker() {
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">AI Symptom Checker</h2>
+                        <div class="flex items-center space-x-4">
+                            <span class="text-sm text-blue-600 flex items-center">
+                                <div class="loading-spinner mr-2"></div>
+                                AI Analyzing
+                            </span>
+                            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Describe Your Symptoms</h3>
+                                <textarea class="w-full h-32 p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-blue-500" placeholder="Please describe how you're feeling... (e.g., I have a headache and fever since yesterday)"></textarea>
+                            </div>
+                            
+                            <div class="mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Quick Symptom Selection</h3>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button class="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-lg">🤒</span>
+                                            <span class="text-sm">Fever</span>
+                                        </div>
+                                    </button>
+                                    <button class="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-lg">🤕</span>
+                                            <span class="text-sm">Headache</span>
+                                        </div>
+                                    </button>
+                                    <button class="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-lg">😷</span>
+                                            <span class="text-sm">Cough</span>
+                                        </div>
+                                    </button>
+                                    <button class="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-lg">🤢</span>
+                                            <span class="text-sm">Nausea</span>
+                                        </div>
+                                    </button>
+                                    <button class="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-lg">😴</span>
+                                            <span class="text-sm">Fatigue</span>
+                                        </div>
+                                    </button>
+                                    <button class="p-3 border border-gray-300 rounded-lg hover:bg-blue-50 hover:border-blue-300 text-left">
+                                        <div class="flex items-center space-x-2">
+                                            <span class="text-lg">🤧</span>
+                                            <span class="text-sm">Runny Nose</span>
+                                        </div>
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <button onclick="analyzeSymptoms()" class="w-full bg-green-600 hover:bg-green-700 text-white py-3 rounded-lg font-medium">
+                                Analyze Symptoms
+                            </button>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Assessment Results</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-medium text-gray-900">Common Cold</span>
+                                            <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">85% Match</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2">Based on your symptoms of runny nose, mild headache, and fatigue.</p>
+                                        <div class="text-xs text-blue-600">
+                                            <p>• Rest and stay hydrated</p>
+                                            <p>• Over-the-counter pain relievers</p>
+                                            <p>• Usually resolves in 7-10 days</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-lg p-4">
+                                        <div class="flex items-center justify-between mb-2">
+                                            <span class="font-medium text-gray-900">Seasonal Allergy</span>
+                                            <span class="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">65% Match</span>
+                                        </div>
+                                        <p class="text-sm text-gray-600 mb-2">Consider if symptoms are seasonal or triggered by specific allergens.</p>
+                                        <div class="text-xs text-blue-600">
+                                            <p>• Antihistamines may help</p>
+                                            <p>• Avoid known allergens</p>
+                                            <p>• Consider allergy testing</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                                <div class="flex items-start space-x-3">
+                                    <svg class="w-5 h-5 text-red-600 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                                    </svg>
+                                    <div>
+                                        <h4 class="font-medium text-red-900">Important Disclaimer</h4>
+                                        <p class="text-sm text-red-700 mt-1">This AI assessment is for informational purposes only. Please consult with a healthcare professional for proper diagnosis and treatment.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="flex space-x-3">
+                                <button class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg text-sm">
+                                    Book Consultation
+                                </button>
+                                <button class="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-800 py-2 px-4 rounded-lg text-sm">
+                                    Save Assessment
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        // Feedback and AI Learning System
+        function endCallWithFeedback() {
+            const content = `
+                <div class="p-8">
+                    <div class="text-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900 mb-2">Call Ended</h2>
+                        <p class="text-gray-600">Please rate your consultation experience</p>
+                    </div>
+                    
+                    <div class="max-w-md mx-auto">
+                        <form onsubmit="submitCallFeedback(event)" class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-3">Overall Rating</label>
+                                <div class="flex justify-center space-x-2">
+                                    ${[1,2,3,4,5].map(rating => `
+                                        <button type="button" onclick="setRating(${rating})" 
+                                                class="rating-star w-10 h-10 text-2xl text-gray-300 hover:text-yellow-400 transition-colors" 
+                                                data-rating="${rating}">⭐</button>
+                                    `).join('')}
+                                </div>
+                                <input type="hidden" id="callRating" required>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Connection Quality</label>
+                                <select name="connectionQuality" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option value="">Select quality</option>
+                                    <option value="excellent">Excellent</option>
+                                    <option value="good">Good</option>
+                                    <option value="fair">Fair</option>
+                                    <option value="poor">Poor</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Doctor's Explanation</label>
+                                <select name="doctorExplanation" required class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                    <option value="">Rate explanation</option>
+                                    <option value="very-clear">Very Clear</option>
+                                    <option value="clear">Clear</option>
+                                    <option value="somewhat-clear">Somewhat Clear</option>
+                                    <option value="unclear">Unclear</option>
+                                </select>
+                            </div>
+                            
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-2">Additional Comments</label>
+                                <textarea name="comments" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-lg" 
+                                          placeholder="Any additional feedback..."></textarea>
+                            </div>
+                            
+                            <div class="flex space-x-3">
+                                <button type="submit" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-lg font-medium">
+                                    Submit Feedback
+                                </button>
+                                <button type="button" onclick="closeModal()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-3 rounded-lg font-medium">
+                                    Skip
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function setRating(rating) {
+            document.getElementById('callRating').value = rating;
+            const stars = document.querySelectorAll('.rating-star');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.remove('text-gray-300');
+                    star.classList.add('text-yellow-400');
+                } else {
+                    star.classList.remove('text-yellow-400');
+                    star.classList.add('text-gray-300');
+                }
+            });
+        }
+
+        function submitCallFeedback(event) {
+            event.preventDefault();
+            const formData = new FormData(event.target);
+            const feedback = {
+                rating: document.getElementById('callRating').value,
+                connectionQuality: formData.get('connectionQuality'),
+                doctorExplanation: formData.get('doctorExplanation'),
+                comments: formData.get('comments'),
+                timestamp: new Date().toISOString(),
+                userId: currentUser?.name || 'Anonymous'
+            };
+            
+            callFeedback.push(feedback);
+            
+            // Show thank you message
+            const content = `
+                <div class="p-8 text-center">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <svg class="w-8 h-8 text-green-600" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-2">Thank You!</h2>
+                    <p class="text-gray-600 mb-6">Your feedback helps us improve our services for rural communities.</p>
+                    <button onclick="closeModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">
+                        Close
+                    </button>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function analyzeSymptoms() {
+            const symptoms = document.querySelector('textarea').value;
+            if (!symptoms.trim()) {
+                alert('Please describe your symptoms first.');
+                return;
+            }
+
+            // Store user input for AI learning
+            const symptomData = {
+                symptoms: symptoms,
+                timestamp: new Date().toISOString(),
+                userId: currentUser?.name || 'Anonymous',
+                language: document.getElementById('languageSelect').value
+            };
+            aiLearningData.push(symptomData);
+
+            // Show enhanced AI analysis with learning feedback
+            const analysisContent = `
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 mb-6">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Assessment Results</h3>
+                    <div class="space-y-4">
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium text-gray-900">Common Cold</span>
+                                <span class="text-sm bg-green-100 text-green-800 px-2 py-1 rounded-full">85% Match</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Based on your symptoms and similar cases in rural areas.</p>
+                            <div class="text-xs text-blue-600">
+                                <p>• Rest and stay hydrated</p>
+                                <p>• Over-the-counter pain relievers</p>
+                                <p>• Usually resolves in 7-10 days</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white rounded-lg p-4">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-medium text-gray-900">Seasonal Allergy</span>
+                                <span class="text-sm bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full">65% Match</span>
+                            </div>
+                            <p class="text-sm text-gray-600 mb-2">Consider if symptoms are seasonal or triggered by specific allergens.</p>
+                            <div class="text-xs text-blue-600">
+                                <p>• Antihistamines may help</p>
+                                <p>• Avoid known allergens</p>
+                                <p>• Consider allergy testing</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 p-3 bg-blue-100 rounded-lg">
+                        <h4 class="font-medium text-blue-900 mb-2">🤖 AI Learning Update</h4>
+                        <p class="text-sm text-blue-800">Your symptoms have been added to our rural health database to improve future diagnoses for similar cases in your region.</p>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Was this assessment helpful?</h4>
+                        <div class="flex space-x-2">
+                            <button onclick="rateAIAssessment('helpful')" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm">
+                                👍 Helpful
+                            </button>
+                            <button onclick="rateAIAssessment('not-helpful')" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg text-sm">
+                                👎 Not Helpful
+                            </button>
+                            <button onclick="rateAIAssessment('partially')" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-lg text-sm">
+                                🤔 Partially
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            // Update the AI results section
+            const resultsSection = document.querySelector('.bg-gradient-to-r.from-blue-50.to-purple-50');
+            if (resultsSection) {
+                resultsSection.outerHTML = analysisContent;
+            }
+        }
+
+        function rateAIAssessment(rating) {
+            const feedback = {
+                rating: rating,
+                timestamp: new Date().toISOString(),
+                userId: currentUser?.name || 'Anonymous',
+                symptoms: aiLearningData[aiLearningData.length - 1]?.symptoms || ''
+            };
+            
+            // Store AI feedback for learning
+            aiLearningData[aiLearningData.length - 1].userFeedback = rating;
+            
+            // Show feedback confirmation
+            const message = rating === 'helpful' ? 'Thank you! This helps our AI learn.' :
+                           rating === 'not-helpful' ? 'Thank you for the feedback. We\'ll improve our AI.' :
+                           'Thank you! Your feedback helps us enhance accuracy.';
+            
+            const notification = document.createElement('div');
+            notification.className = 'fixed bottom-4 right-4 bg-blue-600 text-white px-4 py-2 rounded-lg shadow-lg z-50';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Government Schemes
+        function openGovernmentSchemes() {
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Government Health Schemes</h2>
+                        <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div>
+                            <div class="bg-gradient-to-r from-orange-100 to-red-100 rounded-lg p-6 mb-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4">🏥 Ayushman Bharat - PMJAY</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900 mb-2">Coverage Benefits</h4>
+                                        <ul class="text-sm text-gray-600 space-y-1">
+                                            <li>• ₹5 lakh per family per year</li>
+                                            <li>• Covers 1,400+ medical procedures</li>
+                                            <li>• Cashless treatment at empaneled hospitals</li>
+                                            <li>• Pre and post-hospitalization coverage</li>
+                                        </ul>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900 mb-2">Eligibility Check</h4>
+                                        <div class="space-y-3">
+                                            <input type="text" placeholder="Enter Aadhaar Number" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                                            <button onclick="checkEligibility()" class="w-full bg-orange-600 hover:bg-orange-700 text-white py-2 rounded-lg">
+                                                Check Eligibility
+                                            </button>
+                                        </div>
+                                        <div id="eligibilityResult" class="mt-3 hidden">
+                                            <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                                                <p class="text-sm text-green-800">✅ You are eligible for Ayushman Bharat scheme!</p>
+                                                <p class="text-xs text-green-600 mt-1">Family ID: AB-1234567890</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg p-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4">🏛️ State Health Schemes</h3>
+                                <div class="space-y-3">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900">Rajasthan - Bhamashah Swasthya Bima Yojana</h4>
+                                        <p class="text-sm text-gray-600">Additional ₹30,000 coverage for BPL families</p>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mt-1">Learn More</button>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900">Tamil Nadu - Chief Minister's Health Insurance</h4>
+                                        <p class="text-sm text-gray-600">₹5 lakh coverage for all families</p>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mt-1">Learn More</button>
+                                    </div>
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900">Karnataka - Suvarna Arogya Suraksha</h4>
+                                        <p class="text-sm text-gray-600">Comprehensive health coverage</p>
+                                        <button class="text-blue-600 hover:text-blue-800 text-sm mt-1">Learn More</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-gradient-to-r from-green-100 to-teal-100 rounded-lg p-6 mb-6">
+                                <h3 class="text-xl font-semibold text-gray-900 mb-4">🎯 Specialized Schemes</h3>
+                                <div class="space-y-4">
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900 mb-2">Janani Suraksha Yojana (JSY)</h4>
+                                        <p class="text-sm text-gray-600 mb-2">Cash assistance for institutional delivery</p>
+                                        <div class="text-xs text-green-600">
+                                            <p>• Rural: ₹1,400 per delivery</p>
+                                            <p>• Urban: ₹1,000 per delivery</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900 mb-2">Rashtriya Swasthya Bima Yojana</h4>
+                                        <p class="text-sm text-gray-600 mb-2">Health insurance for BPL families</p>
+                                        <div class="text-xs text-green-600">
+                                            <p>• ₹30,000 annual coverage</p>
+                                            <p>• Covers pre-existing diseases</p>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="bg-white rounded-lg p-4">
+                                        <h4 class="font-medium text-gray-900 mb-2">Mission Indradhanush</h4>
+                                        <p class="text-sm text-gray-600 mb-2">Universal immunization program</p>
+                                        <div class="text-xs text-green-600">
+                                            <p>• Free vaccines for children</p>
+                                            <p>• Pregnant women coverage</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-4">
+                                <h4 class="font-medium text-yellow-900 mb-2">📞 Helpline Numbers</h4>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-yellow-800">Ayushman Bharat:</span>
+                                        <span class="font-medium text-yellow-900">14555</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-yellow-800">Health Ministry:</span>
+                                        <span class="font-medium text-yellow-900">1075</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-yellow-800">Emergency:</span>
+                                        <span class="font-medium text-yellow-900">108</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-medium text-blue-900 mb-2">📋 Required Documents</h4>
+                                <ul class="text-sm text-blue-800 space-y-1">
+                                    <li>• Aadhaar Card (mandatory)</li>
+                                    <li>• Ration Card</li>
+                                    <li>• Income Certificate</li>
+                                    <li>• Caste Certificate (if applicable)</li>
+                                    <li>• Bank Account Details</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function checkEligibility() {
+            const resultDiv = document.getElementById('eligibilityResult');
+            resultDiv.classList.remove('hidden');
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                resultDiv.innerHTML = `
+                    <div class="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p class="text-sm text-green-800">✅ You are eligible for Ayushman Bharat scheme!</p>
+                        <p class="text-xs text-green-600 mt-1">Family ID: AB-${Math.floor(Math.random() * 10000000000)}</p>
+                        <button onclick="downloadCard()" class="mt-2 text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
+                            Download E-Card
+                        </button>
+                    </div>
+                `;
+            }, 1500);
+        }
+
+        function downloadCard() {
+            alert('E-Card download initiated. You will receive it via SMS and email.');
+        }
+
+        // Voice Assistant
+        function openVoiceAssistant() {
+            const content = `
+                <div class="p-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-900">Voice Health Assistant</h2>
+                        <div class="flex items-center space-x-4">
+                            <select id="voiceLanguage" onchange="changeVoiceLanguage()" class="text-sm border border-gray-300 rounded-lg px-3 py-1">
+                                <option value="hi-IN">हिंदी</option>
+                                <option value="en-IN">English</option>
+                                <option value="bn-IN">বাংলা</option>
+                                <option value="te-IN">తెలుగు</option>
+                                <option value="ta-IN">தமிழ்</option>
+                            </select>
+                            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div class="text-center">
+                            <div class="mb-8">
+                                <div id="voiceVisualizer" class="w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center transition-all duration-300">
+                                    <svg class="w-16 h-16 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                        <path fill-rule="evenodd" d="M7 4a3 3 0 016 0v4a3 3 0 11-6 0V4zm4 10.93A7.001 7.001 0 0017 8a1 1 0 10-2 0A5 5 0 015 8a1 1 0 00-2 0 7.001 7.001 0 006 6.93V17H6a1 1 0 100 2h8a1 1 0 100-2h-3v-2.07z" clip-rule="evenodd"/>
+                                    </svg>
+                                </div>
+                                
+                                <button id="voiceButton" onclick="toggleVoiceRecognition()" class="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300">
+                                    🎤 Start Speaking
+                                </button>
+                                
+                                <p class="text-sm text-gray-600 mt-4">
+                                    Speak your symptoms or health questions in your preferred language
+                                </p>
+                            </div>
+                            
+                            <div class="bg-gray-50 rounded-lg p-4">
+                                <h4 class="font-medium text-gray-900 mb-2">Voice Commands</h4>
+                                <div class="text-sm text-gray-600 space-y-1">
+                                    <p>• "मुझे बुखार है" (I have fever)</p>
+                                    <p>• "सिर दर्द हो रहा है" (I have headache)</p>
+                                    <p>• "डॉक्टर से बात करना है" (Want to talk to doctor)</p>
+                                    <p>• "दवाई कहाँ मिलेगी" (Where to get medicine)</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="bg-white border border-gray-200 rounded-lg p-6 mb-6">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">Voice Transcript</h3>
+                                <div id="voiceTranscript" class="min-h-32 p-4 bg-gray-50 rounded-lg text-gray-600 text-sm">
+                                    Your speech will appear here...
+                                </div>
+                                <div class="mt-4 flex space-x-3">
+                                    <button onclick="clearTranscript()" class="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 rounded-lg text-sm">
+                                        Clear
+                                    </button>
+                                    <button onclick="analyzeVoiceInput()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm">
+                                        Analyze
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div id="voiceAnalysisResult" class="bg-gradient-to-r from-green-50 to-blue-50 rounded-lg p-6 hidden">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-4">AI Analysis</h3>
+                                <div id="analysisContent">
+                                    <!-- Analysis results will appear here -->
+                                </div>
+                            </div>
+                            
+                            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                                <h4 class="font-medium text-blue-900 mb-2">🔊 Voice Features</h4>
+                                <ul class="text-sm text-blue-800 space-y-1">
+                                    <li>• Multi-language support (5+ Indian languages)</li>
+                                    <li>• Real-time speech-to-text conversion</li>
+                                    <li>• AI-powered symptom analysis</li>
+                                    <li>• Voice-guided navigation</li>
+                                    <li>• Offline voice recognition (limited)</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            showModal(content);
+        }
+
+        function toggleVoiceRecognition() {
+            if (!recognition) {
+                alert('Voice recognition is not supported in your browser. Please use Chrome or Edge.');
+                return;
+            }
+
+            const button = document.getElementById('voiceButton');
+            const visualizer = document.getElementById('voiceVisualizer');
+
+            if (!isListening) {
+                startVoiceRecognition();
+                button.textContent = '🛑 Stop Listening';
+                button.className = 'bg-red-600 hover:bg-red-700 text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300';
+                visualizer.className = 'w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-r from-red-400 to-pink-400 flex items-center justify-center transition-all duration-300 animate-pulse';
+            } else {
+                stopVoiceRecognition();
+                button.textContent = '🎤 Start Speaking';
+                button.className = 'bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-full text-lg font-medium transition-all duration-300';
+                visualizer.className = 'w-32 h-32 mx-auto mb-6 rounded-full bg-gradient-to-r from-purple-400 to-pink-400 flex items-center justify-center transition-all duration-300';
+            }
+        }
+
+        function startVoiceRecognition() {
+            if (!recognition) return;
+
+            isListening = true;
+            voiceTranscript = '';
+            
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; i++) {
+                    transcript += event.results[i][0].transcript;
+                }
+                
+                voiceTranscript = transcript;
+                document.getElementById('voiceTranscript').textContent = transcript;
+            };
+
+            recognition.onerror = function(event) {
+                console.error('Speech recognition error:', event.error);
+                stopVoiceRecognition();
+            };
+
+            recognition.onend = function() {
+                if (isListening) {
+                    recognition.start(); // Restart for continuous listening
+                }
+            };
+
+            recognition.start();
+        }
+
+        function stopVoiceRecognition() {
+            if (recognition) {
+                recognition.stop();
+            }
+            isListening = false;
+        }
+
+        function changeVoiceLanguage() {
+            const lang = document.getElementById('voiceLanguage').value;
+            if (recognition) {
+                recognition.lang = lang;
+            }
+        }
+
+        function clearTranscript() {
+            document.getElementById('voiceTranscript').textContent = 'Your speech will appear here...';
+            voiceTranscript = '';
+            document.getElementById('voiceAnalysisResult').classList.add('hidden');
+        }
+
+        function analyzeVoiceInput() {
+            if (!voiceTranscript.trim()) {
+                alert('Please speak something first.');
+                return;
+            }
+
+            const analysisDiv = document.getElementById('voiceAnalysisResult');
+            const contentDiv = document.getElementById('analysisContent');
+            
+            // Simulate AI analysis
+            contentDiv.innerHTML = `
+                <div class="space-y-4">
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Detected Symptoms</h4>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="bg-red-100 text-red-800 px-2 py-1 rounded-full text-xs">Fever</span>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">Headache</span>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg p-4">
+                        <h4 class="font-medium text-gray-900 mb-2">Recommendations</h4>
+                        <ul class="text-sm text-gray-600 space-y-1">
+                            <li>• Take rest and stay hydrated</li>
+                            <li>• Monitor temperature regularly</li>
+                            <li>• Consult doctor if symptoms persist</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="flex space-x-3">
+                        <button onclick="bookVoiceConsultation()" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-lg text-sm">
+                            Book Consultation
+                        </button>
+                        <button onclick="findNearbyPharmacy()" class="flex-1 bg-green-600 hover:bg-green-700 text-white py-2 rounded-lg text-sm">
+                            Find Medicine
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            analysisDiv.classList.remove('hidden');
+            
+            // Store voice data for AI learning
+            aiLearningData.push({
+                type: 'voice',
+                transcript: voiceTranscript,
+                language: document.getElementById('voiceLanguage').value,
+                timestamp: new Date().toISOString(),
+                userId: currentUser?.name || 'Anonymous'
+            });
+        }
+
+        function bookVoiceConsultation() {
+            closeModal();
+            openConsultation();
+        }
+
+        function findNearbyPharmacy() {
+            closeModal();
+            openPharmacy();
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modalContainer').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Initialize connection status
+        updateConnectionStatus();
+
+        // Simulate connection changes for demo
+        setInterval(() => {
+            // Randomly simulate connection changes for demo purposes
+            if (Math.random() < 0.1) {
+                isOnline = !isOnline;
+                updateConnectionStatus();
+            }
+        }, 5000);
+
+        // Listen for actual connection changes
+        window.addEventListener('online', () => {
+            isOnline = true;
+            updateConnectionStatus();
+        });
+
+        window.addEventListener('offline', () => {
+            isOnline = false;
+            updateConnectionStatus();
+        });
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'984350405175f399',t:'MTc1ODcyNzcyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
